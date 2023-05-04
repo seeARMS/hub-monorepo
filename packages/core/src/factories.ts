@@ -1,11 +1,10 @@
 import { faker } from '@faker-js/faker';
 import { Factory } from '@farcaster/fishery';
-import * as protobufs from './protobufs';
-import { utils } from '@noble/ed25519';
+import { ed25519 } from '@noble/curves/ed25519';
 import { blake3 } from '@noble/hashes/blake3';
-import { Wallet } from 'ethers';
+import { Wallet, randomBytes } from 'ethers';
+import * as protobufs from './protobufs';
 import { bytesToHexString } from './bytes';
-import * as ed25519 from './crypto/ed25519';
 import { Ed25519Signer, Eip712Signer, EthersEip712Signer, NobleEd25519Signer, Signer } from './signers';
 import { getFarcasterTime } from './time';
 import { VerificationEthAddressClaim } from './verifications';
@@ -18,7 +17,7 @@ const FidFactory = Factory.define<number>(() => {
 
 const BytesFactory = Factory.define<Uint8Array, { length?: number }>(({ transientParams }) => {
   const length = transientParams.length ?? faker.datatype.number({ max: 64, min: 1 });
-  return utils.randomBytes(length);
+  return randomBytes(length);
 });
 
 const MessageHashFactory = Factory.define<Uint8Array>(() => {
@@ -74,12 +73,12 @@ const TransactionHashFactory = Factory.define<Uint8Array>(() => {
 /** Signers */
 
 const Ed25519PrivateKeyFactory = Factory.define<Uint8Array>(() => {
-  return utils.randomPrivateKey();
+  return ed25519.utils.randomPrivateKey();
 });
 
 const Ed25519PPublicKeyFactory = Factory.define<Uint8Array>(() => {
   const privateKey = Ed25519PrivateKeyFactory.build();
-  return ed25519.getPublicKeySync(privateKey);
+  return ed25519.getPublicKey(privateKey);
 });
 
 const Ed25519SignerFactory = Factory.define<Ed25519Signer>(() => {
